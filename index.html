@@ -8,6 +8,11 @@
 <!-- ZIM runs on the HTML Canvas powered by JavaScript and CreateJS https://createjs.com -->
 <!-- ZIM is free to use. You can donate to help improve ZIM at https://zimjs.com/donate  -->
 
+<!-- 3D libraries -->
+<!-- 0. bring in the ThreeJS code and the ZIM three helper js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/100/three.min.js"></script>
+<script src="https://d309knd7es5f10.cloudfront.net/three_2.0.js"></script><!-- helper code for ThreeJS -->
+
 <script src="https://zimjs.org/cdn/1.3.2/createjs.js"></script>
 <script src="https://zimjs.org/cdn/cat/03/zim.js"></script>
 <!-- use zimjs.com/distill for minified individual functions! -->
@@ -35,26 +40,12 @@ frame.on("ready", () => { // ES6 Arrow Function - like function(){}
     let stageW = frame.width;
     let stageH = frame.height;
 
-    // see https://zimjs.com/learn.html for video and code tutorials
-    // see https://zimjs.com/docs.html for documentation
-    // see https://zimjs.com/bits.html for 64 Interactive Media techniques
-
-    // *** NOTE: ZIM Cat defaults to time in seconds
-    // All previous versions, examples, videos, etc. have time in milliseconds
-    // This can be set back with TIME = "milliseconds" but we suggest you give it a try!
-    // There will be a warning in the conslole if your animation is not moving ;-)
-
-    // put your code here (you can delete this sample code)
-
-    // with chaining - can also assign to a variable for later access
+    
     new Circle(100, pink)
         .center()
         .drag();
 
-    // without chaining
-    // const circle = new Circle(100, pink);
-    // circle.center();
-    // circle.drag();
+
 
     stage.update(); // this is needed to show any changes
 
