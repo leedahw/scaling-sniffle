@@ -16,6 +16,7 @@
         import {OrbitControls} from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
         import {GLTFLoader} from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
 
+        //SCENE
         const scene = new THREE.Scene();
 
         // CAMERA
@@ -24,60 +25,69 @@
         const windowH = window.innerHeight;
         const aspectRatio = windowW/windowH;
         const near = .1;
-        const far = 10000;
+        const far = 100;
 
         const camera = new THREE.PerspectiveCamera(viewAngle, aspectRatio, near, far);
         // camera.position.z = 30; // back out of screen from origin (0,0,0)
-        camera.position.set(1000,1000,500); // x,y,z
-        // camera.lookAt(scene.position);
+        camera.position.set(-0.2, 0.5, -0.5); // x,y,z
+        
+                //SET VISIBLE HEIGHT
+                // visible_height = 2 * Math.tan( ( Math.PI / 180 ) * camera.fov / 2 ) * (distance_from_camera);
 
         // RENDERER
         const renderer = new THREE.WebGLRenderer({antialias:true});
         renderer.setSize(windowW, windowH);
         document.body.appendChild(renderer.domElement);
 
+        // white background - replace ffffff with any hex color
+        renderer.setClearColor( 0xf0e7cc ); 
+
+        const axesHelper = new THREE.AxesHelper( 5 );
+        scene.add( axesHelper );
+
         // EVENTS
         THREEx.WindowResize(renderer, camera);
         THREEx.FullScreen.bindKey({charCode : "m".charCodeAt()});
 
-        // MODEL
-        const loader = new GLTFLoader();
-        loader.load("lamp/scene.gltf", gltf=>{
+        // LAMP MODEL
+        const lamp = new GLTFLoader();
+        lamp.load("lamp/scene.gltf", gltf=>{
+            gltf.scene.position.z = 0.2; 
+            gltf.scene.position.x = 0.12; 
         	scene.add( gltf.scene );
         }, undefined, error=>{
             console.error(error);
         });
-        // "Cartoon Lowpoly Small City Free Pack" (https://skfb.ly/6zCKD) by antonmoek
-        // is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).
 
-        // // GEOMETRY
-        // const geometry = new THREE.BoxGeometry(10, 10, 10);
-        //
-        // // MATERIAL
-        // // const material = new THREE.MeshBasicMaterial({color:0x333333}); // no shading
-        // // const material = new THREE.MeshLambertMaterial({color:0x666666}); // needs light
-        // // const material = new THREE.MeshPhongMaterial({color:0x666666}); // needs light and is glossy
-        // const material = new THREE.MeshNormalMaterial(); // test colors
-        //
-        // // MESH
-        // const cube = new THREE.Mesh(geometry, material);
-        // scene.add(cube);
+        camera.lookAt(lamp);
+        console.log(lamp);
 
-        // LIGHT
-        // const light = new THREE.PointLight(0x0000ff);
-        // light.position.set(100,200,100);
-        // scene.add(light);
-        //
-        // const light2 = new THREE.PointLight(0xffffff);
-        // light2.position.set(-100,-200,-100);
-        // scene.add(light2);
+        //ROCK MODEL
+        const rock = new GLTFLoader();
+        rock.load("rock/scene.gltf", gltf=>{
+            // adjust scalar factor to match your scene scale
+            gltf.scene.scale.multiplyScalar(1 / 200);
+            gltf.scene.position.y = -0.158; 
+            gltf.scene.position.z = 0.12; 
+        	scene.add( gltf.scene );
+        }, undefined, error=>{
+            console.error(error);
+        });
 
-        const light3 = new THREE.AmbientLight(0xffffff);
-        scene.add(light3);
+
+
+        const light2 = new THREE.PointLight(0xffffff);
+        light2.position.set(lamp);
+        scene.add(light2);
+
+        // Load Light
+        var ambientLight = new THREE.AmbientLight( 0x52514f );
+        scene.add( ambientLight );
 
         // CONTROLS
         // const controls = new THREE.OrbitControls(camera, renderer.domElement);
         const controls = new OrbitControls(camera, renderer.domElement);
+
 
         // ANIMATION
         function render() {
