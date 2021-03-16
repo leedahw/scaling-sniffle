@@ -16,6 +16,8 @@
         import {OrbitControls} from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
         import {GLTFLoader} from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
 
+        //GLOBAL VARIABLE
+
         //SCENE
         const scene = new THREE.Scene();
 
@@ -31,18 +33,16 @@
         // camera.position.z = 30; // back out of screen from origin (0,0,0)
         camera.position.set(100,100, -100); // x,y,z
         
-                //SET VISIBLE HEIGHT
-                // visible_height = 2 * Math.tan( ( Math.PI / 180 ) * camera.fov / 2 ) * (distance_from_camera);
-
         // RENDERER
         const renderer = new THREE.WebGLRenderer({antialias:true});
         renderer.setSize(windowW, windowH);
         document.body.appendChild(renderer.domElement);
 
-        // white background - replace ffffff with any hex color
+
+        // COLORED background - replace HEXCODDE with any hex color
         renderer.setClearColor( 0xf0e7cc ); 
 
-        //SHOW AXES FOR REF. TO 
+        //SHOW AXES FOR REF. for POSITIONING
         const axesHelper = new THREE.AxesHelper( 200 );
         scene.add( axesHelper );
 
@@ -83,7 +83,7 @@
         scene.add(light2);
 
         // Load Light
-        var ambientLight = new THREE.AmbientLight( 0x52514f );
+        const ambientLight = new THREE.AmbientLight( 0x52514f );
         scene.add( ambientLight );
 
         // CONTROLS
@@ -91,31 +91,43 @@
         const controls = new OrbitControls(camera, renderer.domElement);
 
 
-        // ANIMATION
+        //ADD RAYCASTER AND MOUSE ELEMENT AS 2D VECTOR (X,Y)point.
+        var raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+
+        //addEventListener for mouse. calls function when activated.
+        document.addEventListener('mousedown', onDocumentMouseDown, false);
+        //2nd event listener is for mobile touch screens
+        //document.addEventListener ('touchstart',onDocumentTouchStart, false);
+
+        //MouseDown function to get clientside X,Y value to pass to raycaster and mouse.
+        function onDocumentMouseDown (event){
+            //cancel default method
+            event.preventDefault();
+
+            //set x,y vales based on raycasted values of mouse
+            mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+            mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+
+            console.log(mouse.x);
+
+        }
+
+
         function render() {
-            // cube.rotation.x += 0.005;
-            // radians 5*Math.PI/180 // 5 degrees in radians
-            // cube.rotation.y += 0.005;
-            // cube.rotation.z += 0.005;
-            // camera.rotation.y += .005;
+            raycaster.setFromCamera (mouse, camera);
+
+            const intersects = raycaster.intersectObjects (scene.children);
+            
+            for (let i=0; i<intersects.length; i++) {
+                intersects[i].object.material.color.set(0xfff000);
+            }
+            
             renderer.render(scene, camera);
             requestAnimationFrame(render);
         }
         render();
-
-        //add event listen.... but needs raycaster first?
-        renderer.lamp.addEventListener("click",onclick, true);
-        var selectedObject;
-        var raycaster = new raycaster();
-
-        alert("onclick")
-        var mouse = new THREE.Vector2();
-        raycaster.setFromCamera(mouse,camera);
-        var intersects = raycaster.interectObjects(lamp, true);
-        if (interects.length>0) {
-
-        }
-        //end add event listen...
+        
 
         </script>
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
