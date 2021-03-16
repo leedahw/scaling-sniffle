@@ -22,16 +22,16 @@
         const scene = new THREE.Scene();
 
         // CAMERA
-        const viewAngle = 70;
+        const viewAngle = 75;
         const windowW = window.innerWidth;
         const windowH = window.innerHeight;
         const aspectRatio = windowW/windowH;
-        const near = .1;
-        const far = 10000;
+        const near = 10;
+        const far = 1000;
 
         const camera = new THREE.PerspectiveCamera(viewAngle, aspectRatio, near, far);
         // camera.position.z = 30; // back out of screen from origin (0,0,0)
-        camera.position.set(100,100, -100); // x,y,z
+        camera.position.set(-50,50, -100); // x,y,z
         
         // RENDERER
         const renderer = new THREE.WebGLRenderer({antialias:true});
@@ -62,9 +62,6 @@
             console.error(error);
         });
 
-        camera.lookAt(lamp);
-        console.log(lamp);
-
         //ROCK MODEL
         const rock = new GLTFLoader();
         rock.load("rock/scene.gltf", gltf=>{
@@ -87,8 +84,7 @@
         scene.add( ambientLight );
 
         // CONTROLS
-        // const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        const controls = new OrbitControls(camera, renderer.domElement);
+        //const controls = new OrbitControls(camera, renderer.domElement);
 
 
         //ADD RAYCASTER AND MOUSE ELEMENT AS 2D VECTOR (X,Y)point.
@@ -109,12 +105,13 @@
             mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
             mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
 
-            console.log(mouse.x);
+            console.log("hi");
 
         }
 
 
         function render() {
+            camera.lookAt(scene.position);
             raycaster.setFromCamera (mouse, camera);
 
             const intersects = raycaster.intersectObjects (scene.children);
