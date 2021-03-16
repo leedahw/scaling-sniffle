@@ -25,11 +25,11 @@
         const windowH = window.innerHeight;
         const aspectRatio = windowW/windowH;
         const near = .1;
-        const far = 100;
+        const far = 10000;
 
         const camera = new THREE.PerspectiveCamera(viewAngle, aspectRatio, near, far);
         // camera.position.z = 30; // back out of screen from origin (0,0,0)
-        camera.position.set(-0.2, 0.5, -0.5); // x,y,z
+        camera.position.set(100,100, -100); // x,y,z
         
                 //SET VISIBLE HEIGHT
                 // visible_height = 2 * Math.tan( ( Math.PI / 180 ) * camera.fov / 2 ) * (distance_from_camera);
@@ -42,7 +42,8 @@
         // white background - replace ffffff with any hex color
         renderer.setClearColor( 0xf0e7cc ); 
 
-        const axesHelper = new THREE.AxesHelper( 5 );
+        //SHOW AXES FOR REF. TO 
+        const axesHelper = new THREE.AxesHelper( 200 );
         scene.add( axesHelper );
 
         // EVENTS
@@ -52,8 +53,10 @@
         // LAMP MODEL
         const lamp = new GLTFLoader();
         lamp.load("lamp/scene.gltf", gltf=>{
-            gltf.scene.position.z = 0.2; 
-            gltf.scene.position.x = 0.12; 
+            gltf.scene.scale.multiplyScalar(100);
+            gltf.scene.position.x = 10;
+            gltf.scene.position.z = 8;
+            gltf.scene.position.y = 15;
         	scene.add( gltf.scene );
         }, undefined, error=>{
             console.error(error);
@@ -66,18 +69,17 @@
         const rock = new GLTFLoader();
         rock.load("rock/scene.gltf", gltf=>{
             // adjust scalar factor to match your scene scale
-            gltf.scene.scale.multiplyScalar(1 / 200);
-            gltf.scene.position.y = -0.158; 
-            gltf.scene.position.z = 0.12; 
+            gltf.scene.scale.multiplyScalar(1 / 2);
+            //gltf.scene.rotation.z = 180;
         	scene.add( gltf.scene );
         }, undefined, error=>{
             console.error(error);
         });
 
 
-
+        //LIGHTS
         const light2 = new THREE.PointLight(0xffffff);
-        light2.position.set(lamp);
+        light2.position.set(100,100,100);
         scene.add(light2);
 
         // Load Light
@@ -91,20 +93,29 @@
 
         // ANIMATION
         function render() {
-
             // cube.rotation.x += 0.005;
             // radians 5*Math.PI/180 // 5 degrees in radians
             // cube.rotation.y += 0.005;
             // cube.rotation.z += 0.005;
-
             // camera.rotation.y += .005;
-
             renderer.render(scene, camera);
-
             requestAnimationFrame(render);
         }
         render();
 
+        //add event listen.... but needs raycaster first?
+        renderer.lamp.addEventListener("click",onclick, true);
+        var selectedObject;
+        var raycaster = new raycaster();
+
+        alert("onclick")
+        var mouse = new THREE.Vector2();
+        raycaster.setFromCamera(mouse,camera);
+        var intersects = raycaster.interectObjects(lamp, true);
+        if (interects.length>0) {
+
+        }
+        //end add event listen...
 
         </script>
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
