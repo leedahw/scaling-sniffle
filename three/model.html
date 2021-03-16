@@ -91,8 +91,6 @@
         var raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
 
-        //addEventListener for mouse. calls function when activated.
-        document.addEventListener('mousedown', onDocumentMouseDown, false);
         //2nd event listener is for mobile touch screens
         //document.addEventListener ('touchstart',onDocumentTouchStart, false);
 
@@ -105,7 +103,10 @@
             mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
             mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
 
-            console.log("hi");
+            console.log(mouse);
+
+            //ternary operator  or if statement to say if light is in scene, then remove if not add to scene.... or smth similar.... weeeeee
+            scene.remove(light2);
 
         }
 
@@ -124,6 +125,9 @@
             requestAnimationFrame(render);
         }
         render();
+
+        //addEventListener for mouse. calls function on DOcumentMouseDown when activated.
+        window.addEventListener('mousedown', onDocumentMouseDown, false);
         
 
         </script>
