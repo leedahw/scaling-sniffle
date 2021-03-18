@@ -15,6 +15,9 @@
         import * as THREE from 'https://unpkg.com/three/build/three.module.js';
         import {OrbitControls} from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
         import {GLTFLoader} from 'https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js';
+        import { Refractor } from 'https://unpkg.com/three/examples/jsm/objects/Refractor.js';
+        import { WaterRefractionShader } from 'https://unpkg.com/three/examples/jsm/shaders/WaterRefractionShader.js';
+        
 
         //GLOBAL VARIABLE
 
@@ -22,7 +25,7 @@
         const scene = new THREE.Scene();
 
         // CAMERA
-        const viewAngle = 75;
+        const viewAngle = 45;
         const windowW = window.innerWidth;
         const windowH = window.innerHeight;
         const aspectRatio = windowW/windowH;
@@ -31,16 +34,20 @@
 
         const camera = new THREE.PerspectiveCamera(viewAngle, aspectRatio, near, far);
         // camera.position.z = 30; // back out of screen from origin (0,0,0)
-        camera.position.set(-50,50, -100); // x,y,z
+        //camera.position.set(0,100,0); // x,y,z
+        camera.position.set(100, 100, -80);
+
         
         // RENDERER
         const renderer = new THREE.WebGLRenderer({antialias:true});
         renderer.setSize(windowW, windowH);
         document.body.appendChild(renderer.domElement);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
 
-
+        let blues = 0x5587a6;
         // COLORED background - replace HEXCODDE with any hex color
-        renderer.setClearColor( 0xf0e7cc ); 
+        renderer.setClearColor( 0x101d30 ); 
 
         //SHOW AXES FOR REF. for POSITIONING
         const axesHelper = new THREE.AxesHelper( 200 );
@@ -50,6 +57,16 @@
         THREEx.WindowResize(renderer, camera);
         THREEx.FullScreen.bindKey({charCode : "m".charCodeAt()});
 
+        //FLOOR
+       
+        const geometry = new THREE.PlaneGeometry( 100, 100 );
+        var material = new THREE.MeshBasicMaterial( {color: blues, side: THREE.DoubleSide, shader: WaterRefractionShader} );
+
+        const floor = new THREE.Mesh( geometry, material );
+        floor.rotation.x = -(Math.PI / 2);
+        floor.position.y = 5;
+        scene.add(floor);
+
         // LAMP MODEL
         const lamp = new GLTFLoader();
         lamp.load("lamp/scene.gltf", gltf=>{
@@ -57,10 +74,17 @@
             gltf.scene.position.x = 10;
             gltf.scene.position.z = 8;
             gltf.scene.position.y = 15;
+            gltf.scene.castShadow = true;
         	scene.add( gltf.scene );
         }, undefined, error=>{
             console.error(error);
         });
+
+        // scene.traverse((lamp) => {
+        //     if(lamp.isMesh) {
+        //         lamp.material.emissive = new THREE.Color(0x00ffff);
+        //     }
+        // });
 
         //ROCK MODEL
         const rock = new GLTFLoader();
@@ -73,15 +97,41 @@
             console.error(error);
         });
 
+        //FROG MODEL
+        const frog = new GLTFLoader();
+        frog.load("frog/scene.gltf", gltf=>{
+            // adjust scalar factor to match your scene scale
+            gltf.scene.position.y = 20;
+            gltf.scene.position.x = 4;
+            gltf.scene.position.z = -3;
+            gltf.scene.rotation.y = 90;
+            gltf.scene.scale.multiplyScalar(3 / 4);
+        	scene.add( gltf.scene );
+        }, undefined, error=>{
+            console.error(error);
+        });
+        frog.castShadow=true;
 
         //LIGHTS
-        const light2 = new THREE.PointLight(0xffffff);
+        const light2 = new THREE.PointLight( 0xffffff );
         light2.position.set(100,100,100);
         scene.add(light2);
 
         // Load Light
-        const ambientLight = new THREE.AmbientLight( 0x52514f );
+        const ambientLight = new THREE.AmbientLight( 0x1c1c42 );
         scene.add( ambientLight );
+
+
+        //SPOTLIGHT COMING FROM LAMP
+        const spotLight = new THREE.SpotLight( 0xffffff );
+        spotLight.position.set(4, 45, 4);
+        spotLight.castShadow = true;
+        scene.add( spotLight );
+        
+        //light.target = frog;
+
+        //const spotLightHelper = new THREE.SpotLightHelper( spotLight );
+        //scene.add( spotLightHelper );
 
         // CONTROLS
         //const controls = new OrbitControls(camera, renderer.domElement);
@@ -100,14 +150,18 @@
             event.preventDefault();
 
             //set x,y vales based on raycasted values of mouse
-            mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-            mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+            // mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+            // mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
 
-            console.log(mouse);
+            // console.log(mouse);
 
             //ternary operator  or if statement to say if light is in scene, then remove if not add to scene.... or smth similar.... weeeeee
-            scene.remove(light2);
-
+            if (spotLight.visible === true) {
+                spotLight.visible=false;
+            }else {
+                spotLight.visible=true;
+            }
+            
         }
 
 
@@ -117,9 +171,11 @@
 
             const intersects = raycaster.intersectObjects (scene.children);
             
-            for (let i=0; i<intersects.length; i++) {
-                intersects[i].object.material.color.set(0xfff000);
-            }
+
+            // all object in raycast to turn yellow
+            // for (let i=0; i<intersects.length; i++) {
+            //     intersects[i].object.material.color.set(0xfff000);
+            // }
             
             renderer.render(scene, camera);
             requestAnimationFrame(render);
