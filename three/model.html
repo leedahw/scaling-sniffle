@@ -61,10 +61,8 @@
         THREEx.WindowResize(renderer, camera);
         THREEx.FullScreen.bindKey({charCode : "m".charCodeAt()});
 
-        //FLOOR MESH
+        //WATER MESH
         const refractorGeometry = new THREE.PlaneGeometry( 1000 , 1000 );
-        // refractorGeometry.rotation.x = -(Math.PI / 2);
-
 
         refractor = new Refractor (refractorGeometry, {
             color:0x999999,
@@ -84,10 +82,22 @@
         dudvMap.wrapS = dudvMap.wrapT = THREE.RepeatWrapping;
         refractor.material.uniforms["tDudv"].value = dudvMap;
 
-        // const floor = new THREE.Mesh( refractorGeometry, material );
-        // floor.rotation.x = -(Math.PI / 2);
-        // floor.position.y = 5;
-        // scene.add(floor);
+        
+        //DIRT GROUND texture & Material
+        let groundTexture = new THREE.TextureLoader().load('images/pond.jpg');
+        groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
+
+        groundTexture.repeat.set(0.5,0.5);
+        groundTexture.anistropy= 46;
+        groundTexture.encoding = THREE.sRGBENcoding;
+
+			var groundMaterial = new THREE.MeshStandardMaterial( { map: groundTexture } );
+
+			var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100 ), groundMaterial );
+			mesh.position.y = -5;
+			mesh.rotation.x = - Math.PI / 2;
+			mesh.receiveShadow = true;
+			scene.add( mesh );
 
 
         // LAMP MODEL
@@ -135,17 +145,16 @@
         scene.add(light2);
 
         // Load Light
-        const ambientLight = new THREE.AmbientLight( 0x1c1c42 );
+        const ambientLight = new THREE.AmbientLight( 0x0d0f2b );
         scene.add( ambientLight );
 
 
         //SPOTLIGHT COMING FROM LAMP
-        const spotLight = new THREE.SpotLight( 0xffffff );
+        const spotLight = new THREE.SpotLight( {color:0xf5d740, intensity:0.25, angle: Math.PI/4} );
         spotLight.position.set(4, 45, 4);
         spotLight.castShadow = true;
         scene.add( spotLight );
         
-        //light.target = frog;
 
         //const spotLightHelper = new THREE.SpotLightHelper( spotLight );
         //scene.add( spotLightHelper );
@@ -161,7 +170,6 @@
         //2nd event listener is for mobile touch screens
         //document.addEventListener ('touchstart',onDocumentTouchStart, false);
 
-        //MouseDown function to get clientside X,Y value to pass to raycaster and mouse.
         function onDocumentMouseDown (event){
             //cancel default method
             event.preventDefault();
@@ -172,7 +180,7 @@
 
             // console.log(mouse);
 
-            //ternary operator  or if statement to say if light is in scene, then remove if not add to scene.... or smth similar.... weeeeee
+            //toggle light on and off
             if (spotLight.visible === true) {
                 spotLight.visible=false;
             }else {
