@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Ribbit Ribbit</title>
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
+    <link rel="stylesheet" href="preloader.css" />
+    <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Roboto:400,600%7CMaterial+Icons'>
+  </head>
+  <body>
+    <div class="container" id="loader">
+    <img src="background.jpg" alt="Georgian Bay" />
+      <div class="centered">
+          <div class="loading">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
+            <p class="load">LOADING</p>
+        </div>
+            <p class="shenasie">©2021 shenasie</p><
+      </div>
+      <body onload="myFunction()" style="margin:0;">
+      <div id="loader"></div>
+      <div style="display:none;" id="myDiv" >
+      <!---------------------------------------------->
+      <!-- HERE IS WHERE WE ADD THE 3D CODE I GUESS -->
+      <!---------------------------------------------->
+        <img src="3dLight.png" alt="frogLight" />
+      </div>
+      <script>
+      var myVar;
+      function myFunction() {
+        myVar = setTimeout(showPage, 3000);
+      }
+      function showPage() {
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("myDiv").style.display = "block";
+      }
+      </script>
+  </body>
+</html>
