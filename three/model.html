@@ -20,7 +20,7 @@
         
 
         //GLOBAL VARIABLE
-        let scene, camera, clock, renderer, refractor;
+        let scene, camera, clock, renderer, refractor, listener;
 
         //SCENE
         scene = new THREE.Scene();
@@ -49,7 +49,25 @@
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
         
-        
+        //LISTENER & AUDIO
+        listener = new THREE.AudioListener();
+        camera.add( listener );
+
+        // create a global audio source
+        const sound = new THREE.Audio( listener );
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load( 'sounds/water.ogg', function( buffer ) {
+            sound.setBuffer( buffer );
+            sound.setLoop( true );
+            sound.setVolume( 0.5 );
+            sound.play();
+        });
+
+        const sound2 = new THREE.Audio( listener );
+        const audioLoader2 = new THREE.AudioLoader();
+
+
         // COLORED background - replace HEXCODDE with any hex color
         renderer.setClearColor( 0x101d30 ); 
 
@@ -66,8 +84,8 @@
 
         refractor = new Refractor (refractorGeometry, {
             color:0x9ca9ba,
-            textureWidth: 1024,
-            textureHeight:1024,
+            textureWidth: 1800,
+            textureHeight:1800,
             shader: WaterRefractionShader
         });
         
@@ -91,13 +109,13 @@
         groundTexture.anistropy= 46;
         groundTexture.encoding = THREE.sRGBENcoding;
 
-			var groundMaterial = new THREE.MeshStandardMaterial( { map: groundTexture } );
+		var groundMaterial = new THREE.MeshStandardMaterial( { map: groundTexture } );
 
-			var mesh = new THREE.Mesh( new THREE.CylinderGeometry( 50, 50, 10, 100 ), groundMaterial );
-			mesh.position.y = -5;
-			//mesh.rotation.x = - Math.PI / 2;
-			mesh.receiveShadow = true;
-			scene.add( mesh );
+		var mesh = new THREE.Mesh( new THREE.CylinderGeometry( 50, 50, 10, 100 ), groundMaterial );
+		mesh.position.y = -5;
+		//mesh.rotation.x = - Math.PI / 2;
+		mesh.receiveShadow = true;
+		scene.add( mesh );
 
 
         // LAMP MODEL
@@ -194,6 +212,16 @@
                     }else {
                         spotLight.visible=true;
                     }
+
+                    //play ribbit.ogg
+                    audioLoader2.load( 'sounds/ribbit.ogg', function( buffer ) {
+                        sound2.setBuffer( buffer );
+                        sound2.setLoop( false );
+                        sound2.setVolume( 0.5 );
+                        sound2.play(false);
+                        sound2.play();
+                    });
+                    
                     
             }else {
                 console.log('failed');
@@ -228,6 +256,6 @@
 
     </head>
     <body>
-
+        <button style="position:absolute;">PLAY</button>
     </body>
 </html>
