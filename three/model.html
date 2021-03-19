@@ -43,12 +43,12 @@
 
         
         // RENDERER
-        renderer = new THREE.WebGLRenderer({antialias:true});
+        renderer = new THREE.WebGLRenderer({antialias:true, physicallyCorrectLights: true});
         renderer.setSize(windowW, windowH);
         document.body.appendChild(renderer.domElement);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
-
+        
         
         // COLORED background - replace HEXCODDE with any hex color
         renderer.setClearColor( 0x101d30 ); 
@@ -62,17 +62,17 @@
         THREEx.FullScreen.bindKey({charCode : "m".charCodeAt()});
 
         //WATER MESH
-        const refractorGeometry = new THREE.PlaneGeometry( 1000 , 1000 );
+        const refractorGeometry = new THREE.CircleGeometry( 50 , 50 );
 
         refractor = new Refractor (refractorGeometry, {
-            color:0x999999,
+            color:0x9ca9ba,
             textureWidth: 1024,
             textureHeight:1024,
             shader: WaterRefractionShader
         });
         
         refractor.position.set(0,5,0);
-        refractor.rotation.x = -(Math.PI / 2);
+        refractor.rotation.x = -(Math.PI/2);
         scene.add(refractor);
 
         const dudvMap = new THREE.TextureLoader().load( 'images/waterdudv.jpg', function() {
@@ -93,9 +93,9 @@
 
 			var groundMaterial = new THREE.MeshStandardMaterial( { map: groundTexture } );
 
-			var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 100, 100 ), groundMaterial );
+			var mesh = new THREE.Mesh( new THREE.CylinderGeometry( 50, 50, 10, 100 ), groundMaterial );
 			mesh.position.y = -5;
-			mesh.rotation.x = - Math.PI / 2;
+			//mesh.rotation.x = - Math.PI / 2;
 			mesh.receiveShadow = true;
 			scene.add( mesh );
 
@@ -108,10 +108,13 @@
             gltf.scene.position.z = 8;
             gltf.scene.position.y = 15;
             gltf.scene.castShadow = true;
+
         	scene.add( gltf.scene );
         }, undefined, error=>{
             console.error(error);
         });
+
+
 
         //ROCK MODEL
         const rock = new GLTFLoader();
@@ -128,7 +131,7 @@
         const frog = new GLTFLoader();
         frog.load("frog/scene.gltf", gltf=>{
             // adjust scalar factor to match your scene scale
-            gltf.scene.position.y = 20;
+            gltf.scene.position.y = 19;
             gltf.scene.position.x = 4;
             gltf.scene.position.z = -3;
             gltf.scene.rotation.y = 90;
@@ -138,29 +141,31 @@
             console.error(error);
         });
         frog.castShadow=true;
+        
 
         //LIGHTS
-        const light2 = new THREE.PointLight( 0xffffff );
+        const light2 = new THREE.PointLight( 0xffffff,.5,50,2 );
         light2.position.set(100,100,100);
         scene.add(light2);
 
         // Load Light
-        const ambientLight = new THREE.AmbientLight( 0x0d0f2b );
+        const ambientLight = new THREE.AmbientLight( 0x404040 );
         scene.add( ambientLight );
 
 
-        //SPOTLIGHT COMING FROM LAMP
-        const spotLight = new THREE.SpotLight( {color:0xf5d740, intensity:0.25, angle: Math.PI/4} );
+        //LIGHT COMING FROM LAMP
+        const spotLight = new THREE.PointLight( 0xffee88, 1, 80, 2 );
         spotLight.position.set(4, 45, 4);
         spotLight.castShadow = true;
-        scene.add( spotLight );
+        //spotLight.target.position.set(4,20,-3);
+        //scene.add( spotLight.target );
+        scene.add(spotLight);
         
-
         //const spotLightHelper = new THREE.SpotLightHelper( spotLight );
         //scene.add( spotLightHelper );
 
         // CONTROLS
-        //const controls = new OrbitControls(camera, renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
 
 
         //ADD RAYCASTER AND MOUSE ELEMENT AS 2D VECTOR (X,Y)point.
@@ -173,20 +178,27 @@
         function onDocumentMouseDown (event){
             //cancel default method
             event.preventDefault();
-
             //set x,y vales based on raycasted values of mouse
-            // mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
-            // mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
+            mouse.x = ( event.clientX / renderer.domElement.width ) * 2 - 1;
+            mouse.y = - ( event.clientY / renderer.domElement.height ) * 2 + 1;
 
-            // console.log(mouse);
+            //console.log(mouse);
+            raycaster.setFromCamera(mouse,camera);
+            const intersects = raycaster.intersectObjects( scene.children, true );
 
-            //toggle light on and off
-            if (spotLight.visible === true) {
-                spotLight.visible=false;
+            if (intersects.length > 0) {
+                console.log('Intersection: ', intersects[0]);
+                    //toggle light on and off
+                    if (spotLight.visible === true) {
+                        spotLight.visible=false;
+                    }else {
+                        spotLight.visible=true;
+                    }
+                    
             }else {
-                spotLight.visible=true;
+                console.log('failed');
             }
-            
+
         }
 
         //ANIMATE 
@@ -200,23 +212,12 @@
             refractor.material.uniforms[ "time" ].value += clock.getDelta();
 
             camera.lookAt(scene.position);
-            raycaster.setFromCamera (mouse, camera);
-
-            const intersects = raycaster.intersectObjects (scene.children);
-            
-
-            // all object in raycast to turn yellow
-            // for (let i=0; i<intersects.length; i++) {
-            //     intersects[i].object.material.color.set(0xfff000);
-            // }
             
             renderer.render(scene, camera);
         }
         render();
 
-        //addEventListener for mouse. calls function on DOcumentMouseDown when activated.
-        window.addEventListener('mousedown', onDocumentMouseDown, false);
-        
+        renderer.domElement.addEventListener( 'click', onDocumentMouseDown, false );
 
         </script>
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
